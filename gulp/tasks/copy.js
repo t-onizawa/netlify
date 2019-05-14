@@ -9,7 +9,8 @@ const src =  config.path.src.copyAry;
 /**
  * TASK
  */
-gulp.task('copy', () => {
+gulp.task('copy', (done) => {
+    if (!src.length) { return done(); }
     return gulp.src(src, { since: gulp.lastRun('copy')})
         .pipe(plumber({
             errorHandler: function(err) {
