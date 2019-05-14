@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <!-- 並び替え -->
+    <script>
+
+        var category = [
+
+        ];
+
+        var pages = [
+
+        ];
+    </script>
+
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Page List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .wrapper {
+            width: 80%;
+            margin: 2vw auto;
+        }
+        .heading {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+        .pages {
+            margin-top: 40px;
+        }
+        .pages__heading::before {
+            content: "▼";
+            margin-right: 10px;
+        }
+        .pages__list {
+            margin-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        .pages__item {
+            border-bottom: 1px solid #ddd;
+        }
+        .pages__item > a {
+            display: flex;
+            width: 100%;
+            box-sizing: border-box;
+            text-decoration: none;
+            padding: 10px;
+            transition: opacity 300ms;
+            color: #666;
+        }
+        .pages__item > a:hover {
+            opacity: .8;
+        }
+        .pages__name {
+            font-weight: bold;
+        }
+        .pages__path {
+            margin-left: auto;
+        }
+        @media screen and (max-width: 768px) {
+            .wrapper {
+                width: 95%;
+                margin: 2vw auto;
+            }
+            .heading {
+                font-size: 1.5em;
+            }
+            .pages {
+                margin-top: 25px;
+            }
+            .pages__heading {
+                font-size: 1.2em;
+            }
+            .pages__list {
+                margin-top: 10px;
+            }
+            .pages__item > a {
+                flex-direction: column;
+            }
+            .pages__path {
+                margin-left: 0;
+                color: #999;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <h1 class="heading">Page List</h1>
+    <div id="app" class="app"></div>
+</div>
+
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser-polyfill.min.js"></script>
+<script type="text/babel">
+
+    (function() {
+        let domList = [],
+            types = [],
+            elements = '';
+
+        const request = new XMLHttpRequest();
+
+        const getJson = function(reject) {
+            request.open("get", "../pages.json", true);
+            request.onload = function (event) {
+                if (request.readyState === 4) {
+                    if (request.status === 200) {
+                        reject(JSON.parse(request.response)); // => "OK"
+                    } else {
+                        console.log(request.statusText); // => Error Message
+                    }
+                }
+            };
+            request.onerror = function (event) {
+                console.log(event.type); // => "error"
+            };
+            request.send(null);
+        };
+
+        const getElement = (data) => {
+            return `<li class="pages__item"><a target="_blank" href="${data.path}"><span class="pages__name">${data.title}</span><span class="pages__path">${data.path.replace('./', '')}</span></a></li>`
+        };
+
+        getJson(function(jsonData) {
+
+            jsonData.sort((a,b) => {
+                return (a.type < b.type ? 1 : -1);
+            });
+
+            jsonData.sort((a,b) => {
+                let c = category.indexOf(a.type);
+                let d = category.indexOf(b.type);
+                return c - d;
+            });
+
+            for (let item of jsonData) {
+                if (types.indexOf(item.type) === -1) {
+                    types.push(item.type);
+                }
+            }
+
+            for (let type of types) {
+                domList.push({
+                    head: type,
+                    content: '',
+                    children: []
+                });
+            }
+
+            for (let item of jsonData) {
+
+                for (let dom of domList) {
+                    if (dom.head && dom.head === item.type) {
+                        dom.children.push({ title: item.title, path: item.path});
+                    }
+                }
+            }
+
+            for (let dom of domList) {
+                dom.children.sort((a,b) => {
+                    let c = pages.indexOf(a.path.replace('./', '').replace('.html', ''));
+                    let d = pages.indexOf(b.path.replace('./', '').replace('.html', ''));
+
+                    return c - d;
+                });
+            }
+
+            for (let dom of domList) {
+                for (let child of dom.children) {
+                    dom.content += getElement(child);
+                }
+            }
+
+            for (let dom of domList) {
+                elements += `
+                    <section class="pages">
+                        <h2 class="pages__heading">${dom.head}</h2>
+                        <ul class="pages__list">${dom.content}</ul>
+                    </section>
+                `;
+            }
+
+            document.getElementById('app').innerHTML = elements;
+        });
+    })();
+</script>
+
+</body>
+</html>
