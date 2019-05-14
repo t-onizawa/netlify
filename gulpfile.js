@@ -16,7 +16,7 @@ gulp.task('default',
 /**
  * build
  */
-gulp.task('default',
+gulp.task('build',
     gulp.series(
         gulp.parallel('html', 'css', 'js', 'img', 'copy'),
     )
