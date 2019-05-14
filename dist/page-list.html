@@ -128,7 +128,7 @@
 
         const getElement = (data) => {
             console.log(data);
-            return `<li class="pages__item"><a target="_blank" href="${data.path.replace('./src', '')}"><span class="pages__name">${data.title}</span><span class="pages__path">${data.path.replace('./src', '')}</span></a></li>`
+            return `<li class="pages__item"><a target="_blank" href="${data.path.replace('src/', '')}"><span class="pages__name">${data.title}</span><span class="pages__path">${data.path.replace('src/', '')}</span></a></li>`
         };
 
         getJson(function(jsonData) {
