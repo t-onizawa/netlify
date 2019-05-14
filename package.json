@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run getFiles && gulp",
-    "getFiles": "node getFile.js"
+    "getFiles": "node getFile.js",
+    "build": "npm run getFiles && gulp build"
   },
   "repository": {
     "type": "git",
